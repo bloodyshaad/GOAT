@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your GOAT Account</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .logo {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        
+        .verification-section {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .verification-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: white;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .verification-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .alternative-link {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #000;
+        }
+        
+        .alternative-link p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .link-text {
+            word-break: break-all;
+            color: #007bff;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .security-notice {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .security-notice h3 {
+            color: #856404;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-notice p {
+            color: #856404;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .features {
+            margin: 30px 0;
+        }
+        
+        .features h3 {
+            color: #000;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .features li {
+            padding: 8px 0;
+            color: #555;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .footer-content {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .footer p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: #000;
+            color: white;
+            border-color: #000;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #dee2e6, transparent);
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .verification-section {
+                padding: 20px;
+            }
+            
+            .verification-button {
+                padding: 14px 24px;
+                font-size: 14px;
+            }
+            
+            .logo {
+                font-size: 28px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">GOAT</div>
+            <h1>Verify Your Email Address</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">Welcome to GOAT, {{name}}! 🎉</div>
+            
+            <div class="message">
+                Thank you for joining the <strong>Greatest Of All Time</strong> e-commerce platform. You're just one step away from accessing our premium collection of streetwear and luxury fashion.
+            </div>
+            
+            <div class="verification-section">
+                <p style="margin-bottom: 20px; color: #333; font-weight: 500;">
+                    Click the button below to verify your email address and activate your account:
+                </p>
+                <a href="{{verificationUrl}}" class="verification-button">
+                    Verify Email Address
+                </a>
+            </div>
+            
+            <div class="alternative-link">
+                <p><strong>Button not working?</strong> Copy and paste this link into your browser:</p>
+                <div class="link-text">{{verificationUrl}}</div>
+            </div>
+            
+            <div class="security-notice">
+                <h3>🔒 Security Notice</h3>
+                <p>This verification link will expire in <strong>24 hours</strong> for your security. If you didn't create a GOAT account, please ignore this email.</p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="features">
+                <h3>What you'll get with your verified GOAT account:</h3>
+                <ul>
+                    <li>Access to exclusive premium collections</li>
+                    <li>Personalized shopping recommendations</li>
+                    <li>Early access to sales and new arrivals</li>
+                    <li>Secure checkout and order tracking</li>
+                    <li>Wishlist and favorites management</li>
+                    <li>Priority customer support</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-content">
+                <p><strong>GOAT E-commerce</strong></p>
+                <p>Greatest Of All Time Fashion</p>
+                
+                <div class="social-links">
+                    <a href="#">Instagram</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Facebook</a>
+                </div>
+                
+                <p style="font-size: 12px; color: #999; margin-top: 20px;">
+                    &copy; 2024 GOAT E-commerce. All rights reserved.<br>
+                    This email was sent to {{email}} because you created an account with us.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
