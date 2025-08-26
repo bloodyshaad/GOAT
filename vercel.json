@@ -55,13 +55,6 @@
     "NODE_ENV": "production",
     "VITE_API_URL": "/api"
   },
-  "functions": {
-    "server/server.js": {
-      "runtime": "nodejs18.x",
-      "memory": 1024,
-      "maxDuration": 30
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
