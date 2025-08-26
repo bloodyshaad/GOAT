@@ -1,0 +1,309 @@
+/* Anti-Inspection CSS Protection */
+
+/* Disable text selection globally */
+* {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+/* Allow text selection for inputs and textareas */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Disable drag and drop */
+* {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
+}
+
+/* Disable image dragging */
+img {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
+  pointer-events: none !important;
+}
+
+/* Re-enable pointer events for interactive elements */
+button,
+a,
+input,
+textarea,
+select,
+[role="button"],
+[tabindex] {
+  pointer-events: auto !important;
+}
+
+/* Hide scrollbars to prevent inspection via scrollbar manipulation */
+::-webkit-scrollbar {
+  width: 0px !important;
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
+/* Disable outline on focus to prevent element identification */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Disable print styles to prevent source viewing via print */
+@media print {
+  * {
+    display: none !important;
+  }
+  
+  body::before {
+    content: "Printing is disabled for security reasons" !important;
+    display: block !important;
+    font-size: 24px !important;
+    text-align: center !important;
+    margin-top: 50vh !important;
+  }
+}
+
+/* Hide elements that might reveal structure */
+script,
+style,
+link[rel="stylesheet"],
+meta {
+  display: none !important;
+}
+
+/* Obfuscate class names and IDs in dev tools */
+.obfuscated-element {
+  --fake-property-1: "fake-value-1";
+  --fake-property-2: "fake-value-2";
+  --fake-property-3: "fake-value-3";
+}
+
+/* Add fake CSS rules to confuse inspectors */
+.fake-admin-panel {
+  display: none;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+.fake-api-key::before {
+  content: "API_KEY: fake_key_12345";
+  display: none;
+}
+
+.fake-secret-data::after {
+  content: "SECRET: fake_secret_67890";
+  display: none;
+}
+
+/* Disable context menu styling */
+.no-context-menu {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Anti-debugging CSS animations */
+@keyframes anti-debug {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.debug-detected {
+  animation: anti-debug 0.5s infinite !important;
+  filter: blur(10px) !important;
+  pointer-events: none !important;
+}
+
+/* Hide sensitive elements from screenshots */
+.sensitive-content {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  user-select: none !important;
+  filter: blur(0px);
+  transition: filter 0.1s;
+}
+
+.sensitive-content:hover {
+  filter: blur(5px);
+}
+
+/* Disable text highlighting */
+::selection {
+  background: transparent !important;
+}
+
+::-moz-selection {
+  background: transparent !important;
+}
+
+/* Disable image context menu */
+img::selection {
+  background: transparent !important;
+}
+
+/* Hide cursor on sensitive elements */
+.no-cursor {
+  cursor: none !important;
+}
+
+/* Fake loading overlay to hide content during inspection attempts */
+.inspection-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 24px !important;
+  z-index: 999999 !important;
+  font-family: Arial, sans-serif !important;
+}
+
+/* Disable zoom */
+.no-zoom {
+  touch-action: pan-x pan-y !important;
+  -ms-touch-action: pan-x pan-y !important;
+}
+
+/* Prevent element highlighting in dev tools */
+* {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-focus-ring-color: transparent !important;
+}
+
+/* Hide from screen readers when being inspected */
+.hide-from-readers {
+  speak: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Obfuscation classes */
+.obf-1 { --x: 1; }
+.obf-2 { --x: 2; }
+.obf-3 { --x: 3; }
+.obf-4 { --x: 4; }
+.obf-5 { --x: 5; }
+
+/* Fake responsive breakpoints to confuse inspectors */
+@media (max-width: 9999px) {
+  .fake-mobile { display: none; }
+}
+
+@media (min-width: -1px) {
+  .fake-desktop { display: none; }
+}
+
+/* Anti-extension CSS */
+[data-extension],
+[data-reactroot],
+.extension-root,
+#extension-root {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Disable pointer events on potential extension elements */
+[class*="extension"],
+[id*="extension"],
+[class*="devtools"],
+[id*="devtools"] {
+  pointer-events: none !important;
+  display: none !important;
+}
+
+/* Hide from accessibility tools during inspection */
+.inspection-mode {
+  aria-hidden: true !important;
+  role: presentation !important;
+}
+
+/* Fake CSS Grid and Flexbox properties */
+.fake-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-gap: 0;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+.fake-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+/* Disable smooth scrolling to prevent inspection via scroll behavior */
+* {
+  scroll-behavior: auto !important;
+}
+
+/* Hide custom properties from inspection */
+:root {
+  --fake-color-primary: #000000;
+  --fake-color-secondary: #ffffff;
+  --fake-font-family: "Arial", sans-serif;
+  --fake-border-radius: 4px;
+  --fake-spacing: 16px;
+}
+
+/* Disable CSS animations during inspection */
+.no-animations * {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+/* Final protection layer */
+.protected-content {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  pointer-events: auto !important;
+}
+
+.protected-content * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
