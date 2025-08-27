@@ -1,13 +1,13 @@
 /**
- * Anti-Inspection Protection System
- * Prevents users from inspecting the website code
+ * Anti-Inspection Protection System (Production-Safe Version)
+ * Prevents users from inspecting the website code while maintaining functionality
  */
 
 class AntiInspectProtection {
   private isProtectionActive = true;
   private devToolsOpen = false;
   private warningCount = 0;
-  private maxWarnings = 3;
+  private maxWarnings = 5; // Increased tolerance
   private redirectUrl = 'https://google.com';
 
   constructor() {
@@ -17,38 +17,47 @@ class AntiInspectProtection {
   private init() {
     if (typeof window === 'undefined') return;
 
-    // Only enable in production
+    // Only enable in production and check if it's actually needed
     if (import.meta.env.DEV) {
       console.log('🔒 Anti-inspection disabled in development mode');
       return;
     }
 
-    this.disableRightClick();
-    this.disableKeyboardShortcuts();
-    this.disableTextSelection();
-    this.detectDevTools();
-    this.disableConsole();
-    this.preventSourceView();
-    this.addVisualWarnings();
-    this.obfuscateContent();
-    this.detectInspectionAttempts();
+    // Add a small delay to ensure DOM is ready
+    setTimeout(() => {
+      this.initProtection();
+    }, 1000);
   }
 
-  // Disable right-click context menu
+  private initProtection() {
+    try {
+      this.disableRightClick();
+      this.disableKeyboardShortcuts();
+      this.disableTextSelection();
+      this.detectDevTools();
+      this.preventSourceView();
+      this.addVisualWarnings();
+      this.obfuscateContent();
+    } catch (error) {
+      console.warn('Protection system initialization failed:', error);
+      // Disable protection if it causes errors
+      this.isProtectionActive = false;
+    }
+  }
+
+  // Disable right-click context menu (less aggressive)
   private disableRightClick() {
     document.addEventListener('contextmenu', (e) => {
+      // Allow right-click on input fields
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return true;
+      }
       e.preventDefault();
       this.showWarning('Right-click is disabled for security reasons');
       return false;
     });
 
-    // Disable drag and drop
-    document.addEventListener('dragstart', (e) => {
-      e.preventDefault();
-      return false;
-    });
-
-    // Disable image saving
+    // Disable drag and drop for images only
     document.addEventListener('dragstart', (e) => {
       if (e.target instanceof HTMLImageElement) {
         e.preventDefault();
@@ -57,7 +66,7 @@ class AntiInspectProtection {
     });
   }
 
-  // Disable keyboard shortcuts for developer tools
+  // Disable keyboard shortcuts for developer tools (safer implementation)
   private disableKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
       // F12 - Developer Tools
@@ -70,7 +79,7 @@ class AntiInspectProtection {
       // Ctrl+Shift+I - Developer Tools
       if (e.ctrlKey && e.shiftKey && e.key === 'I') {
         e.preventDefault();
-        this.handleInspectionAttempt('Ctrl+Shift+I blocked');
+        this.handleInspectionAttempt('Developer tools blocked');
         return false;
       }
 
@@ -81,49 +90,17 @@ class AntiInspectProtection {
         return false;
       }
 
-      // Ctrl+Shift+C - Element Inspector
-      if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-        e.preventDefault();
-        this.handleInspectionAttempt('Element inspector blocked');
-        return false;
-      }
-
       // Ctrl+U - View Source
       if (e.ctrlKey && e.key === 'u') {
         e.preventDefault();
         this.handleInspectionAttempt('View source blocked');
         return false;
       }
-
-      // Ctrl+S - Save Page
-      if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        this.handleInspectionAttempt('Save page blocked');
-        return false;
-      }
-
-      // Ctrl+A - Select All (in some contexts)
-      if (e.ctrlKey && e.key === 'a' && e.target === document.body) {
-        e.preventDefault();
-        return false;
-      }
-
-      // Ctrl+P - Print (can reveal source)
-      if (e.ctrlKey && e.key === 'p') {
-        e.preventDefault();
-        this.handleInspectionAttempt('Print blocked');
-        return false;
-      }
     });
   }
 
-  // Disable text selection
+  // Disable text selection (with exceptions)
   private disableTextSelection() {
-    document.addEventListener('selectstart', (e) => {
-      e.preventDefault();
-      return false;
-    });
-
     // Add CSS to prevent selection
     const style = document.createElement('style');
     style.textContent = `
@@ -132,11 +109,9 @@ class AntiInspectProtection {
         -moz-user-select: none !important;
         -ms-user-select: none !important;
         user-select: none !important;
-        -webkit-touch-callout: none !important;
-        -webkit-tap-highlight-color: transparent !important;
       }
       
-      input, textarea {
+      input, textarea, [contenteditable="true"] {
         -webkit-user-select: text !important;
         -moz-user-select: text !important;
         -ms-user-select: text !important;
@@ -146,11 +121,11 @@ class AntiInspectProtection {
     document.head.appendChild(style);
   }
 
-  // Detect if developer tools are open
+  // Detect if developer tools are open (safer method)
   private detectDevTools() {
-    const devtools = { open: false, orientation: null };
+    let devtools = { open: false };
     
-    setInterval(() => {
+    const checkDevTools = () => {
       if (window.outerHeight - window.innerHeight > 200 || 
           window.outerWidth - window.innerWidth > 200) {
         if (!devtools.open) {
@@ -162,92 +137,15 @@ class AntiInspectProtection {
         devtools.open = false;
         this.devToolsOpen = false;
       }
-    }, 500);
-
-    // Alternative detection method
-    const threshold = 160;
-    setInterval(() => {
-      if (window.outerHeight - window.innerHeight > threshold || 
-          window.outerWidth - window.innerWidth > threshold) {
-        this.handleDevToolsDetected();
-      }
-    }, 1000);
-
-    // Console detection
-    const devToolsChecker = () => {
-      const before = new Date();
-      debugger;
-      const after = new Date();
-      if (after.getTime() - before.getTime() > 100) {
-        this.handleDevToolsDetected();
-      }
     };
 
-    setInterval(devToolsChecker, 1000);
-  }
-
-  // Disable console
-  private disableConsole() {
-    // Override console methods
-    const noop = () => {};
-    const consoleWarning = () => {
-      this.handleInspectionAttempt('Console access detected');
-    };
-
-    if (typeof console !== 'undefined') {
-      console.log = consoleWarning;
-      console.warn = consoleWarning;
-      console.error = consoleWarning;
-      console.info = consoleWarning;
-      console.debug = consoleWarning;
-      console.trace = consoleWarning;
-      console.dir = consoleWarning;
-      console.dirxml = consoleWarning;
-      console.group = consoleWarning;
-      console.groupCollapsed = consoleWarning;
-      console.groupEnd = noop;
-      console.time = noop;
-      console.timeEnd = noop;
-      console.profile = noop;
-      console.profileEnd = noop;
-      console.count = noop;
-      console.clear = consoleWarning;
-      console.table = consoleWarning;
-      console.assert = consoleWarning;
-    }
-
-    // Prevent console from being redefined
-    Object.defineProperty(window, 'console', {
-      get: () => ({
-        log: consoleWarning,
-        warn: consoleWarning,
-        error: consoleWarning,
-        info: consoleWarning,
-        debug: consoleWarning,
-        trace: consoleWarning,
-        dir: consoleWarning,
-        dirxml: consoleWarning,
-        group: consoleWarning,
-        groupCollapsed: consoleWarning,
-        groupEnd: noop,
-        time: noop,
-        timeEnd: noop,
-        profile: noop,
-        profileEnd: noop,
-        count: noop,
-        clear: consoleWarning,
-        table: consoleWarning,
-        assert: consoleWarning
-      }),
-      set: () => {
-        this.handleInspectionAttempt('Console redefinition blocked');
-      }
-    });
+    // Check less frequently to avoid performance issues
+    setInterval(checkDevTools, 2000);
   }
 
   // Prevent viewing page source
   private preventSourceView() {
-    // Disable Ctrl+U
+    // Override common view source shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
         e.preventDefault();
@@ -255,187 +153,89 @@ class AntiInspectProtection {
         return false;
       }
     });
-
-    // Clear page source periodically
-    setInterval(() => {
-      if (document.documentElement.outerHTML.length > 1000000) {
-        // If someone is trying to access large amounts of HTML
-        this.handleInspectionAttempt('Large HTML access detected');
-      }
-    }, 5000);
   }
 
-  // Add visual warnings
+  // Add visual warnings (non-intrusive)
   private addVisualWarnings() {
-    // Create warning overlay
-    const createWarningOverlay = (message: string) => {
+    // Store the function for later use
+    (window as any).__showSecurityWarning = (message: string) => {
       const overlay = document.createElement('div');
       overlay.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
+        top: 20px;
+        right: 20px;
         background: rgba(255, 0, 0, 0.9);
         color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-size: 14px;
         font-weight: bold;
         z-index: 999999;
-        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         font-family: Arial, sans-serif;
+        max-width: 300px;
       `;
       overlay.innerHTML = `
         <div>
-          <h1>⚠️ SECURITY WARNING ⚠️</h1>
+          <h4>⚠️ Security Notice</h4>
           <p>${message}</p>
-          <p>This action has been logged.</p>
-          <p>Redirecting in 3 seconds...</p>
         </div>
       `;
       document.body.appendChild(overlay);
 
       setTimeout(() => {
-        window.location.href = this.redirectUrl;
-      }, 3000);
+        if (overlay.parentNode) {
+          overlay.remove();
+        }
+      }, 5000);
     };
-
-    // Store the function for later use
-    (window as any).__showSecurityWarning = createWarningOverlay;
   }
 
-  // Obfuscate content
+  // Obfuscate content (minimal approach)
   private obfuscateContent() {
-    // Add fake elements to confuse inspectors
+    // Add minimal fake elements
     const addFakeElements = () => {
       const fakeDiv = document.createElement('div');
       fakeDiv.style.display = 'none';
       fakeDiv.innerHTML = `
-        <!-- Fake API endpoints -->
-        <script>
-          const API_KEY = "fake_key_12345";
-          const SECRET_TOKEN = "fake_token_67890";
-          const DATABASE_URL = "fake_db_url";
-        </script>
-        <!-- Fake sensitive data -->
-        <div data-secret="fake_secret_data">
-          <span class="hidden-api">fake_api_endpoint</span>
-          <span class="admin-token">fake_admin_token</span>
-        </div>
+        <!-- Security notice: This is a protected application -->
+        <span data-info="goat-ecommerce-v1.0"></span>
       `;
       document.body.appendChild(fakeDiv);
     };
 
-    // Add fake elements periodically
-    setTimeout(addFakeElements, 1000);
-    setInterval(addFakeElements, 30000);
-
-    // Obfuscate class names and IDs periodically
-    setInterval(() => {
-      const elements = document.querySelectorAll('[class], [id]');
-      elements.forEach((el, index) => {
-        if (Math.random() < 0.1) { // 10% chance
-          const randomClass = 'obf_' + Math.random().toString(36).substring(7);
-          el.classList.add(randomClass);
-        }
-      });
-    }, 10000);
+    setTimeout(addFakeElements, 2000);
   }
 
-  // Detect various inspection attempts
-  private detectInspectionAttempts() {
-    // Monitor for unusual activity
-    let clickCount = 0;
-    let keyCount = 0;
-
-    document.addEventListener('click', () => {
-      clickCount++;
-      if (clickCount > 100) { // Unusual clicking pattern
-        this.handleInspectionAttempt('Unusual clicking pattern detected');
-        clickCount = 0;
-      }
-    });
-
-    document.addEventListener('keydown', () => {
-      keyCount++;
-      if (keyCount > 200) { // Unusual key pressing
-        this.handleInspectionAttempt('Unusual keyboard activity detected');
-        keyCount = 0;
-      }
-    });
-
-    // Reset counters periodically
-    setInterval(() => {
-      clickCount = 0;
-      keyCount = 0;
-    }, 60000);
-
-    // Monitor for script injection attempts
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node as Element;
-              if (element.tagName === 'SCRIPT' || element.tagName === 'STYLE') {
-                if (!element.hasAttribute('data-goat-allowed')) {
-                  this.handleInspectionAttempt('Unauthorized script/style injection detected');
-                  element.remove();
-                }
-              }
-            }
-          });
-        }
-      });
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  }
-
-  // Handle developer tools detection
+  // Handle developer tools detection (less aggressive)
   private handleDevToolsDetected() {
     if (!this.isProtectionActive) return;
 
     this.warningCount++;
     
     if (this.warningCount >= this.maxWarnings) {
-      this.redirectUser('Developer tools detected multiple times');
+      this.showWarning('Multiple security violations detected. Please use the application normally.');
     } else {
       this.showWarning(`Developer tools detected! Warning ${this.warningCount}/${this.maxWarnings}`);
-      
-      // Blur the page content
-      document.body.style.filter = 'blur(10px)';
-      document.body.style.pointerEvents = 'none';
-      
-      setTimeout(() => {
-        document.body.style.filter = '';
-        document.body.style.pointerEvents = '';
-      }, 3000);
     }
   }
 
-  // Handle inspection attempts
+  // Handle inspection attempts (gentler approach)
   private handleInspectionAttempt(reason: string) {
     if (!this.isProtectionActive) return;
 
     this.warningCount++;
-    console.warn(`🔒 Security: ${reason}`);
-
+    
     if (this.warningCount >= this.maxWarnings) {
-      this.redirectUser(reason);
+      this.showWarning('Please use the application normally for the best experience.');
     } else {
-      this.showWarning(`Security violation: ${reason}`);
+      this.showWarning(`Security notice: ${reason}`);
     }
   }
 
-  // Show warning message
+  // Show warning message (non-blocking)
   private showWarning(message: string) {
-    // Create toast notification
+    // Create toast notification that doesn't block functionality
     const toast = document.createElement('div');
     toast.style.cssText = `
       position: fixed;
@@ -443,30 +243,37 @@ class AntiInspectProtection {
       right: 20px;
       background: #ff4444;
       color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-      font-weight: bold;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
       z-index: 999999;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      font-family: Arial, sans-serif;
-      max-width: 300px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 280px;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
     `;
     toast.textContent = `⚠️ ${message}`;
     document.body.appendChild(toast);
 
+    // Animate in
     setTimeout(() => {
-      toast.remove();
-    }, 5000);
-  }
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(0)';
+    }, 100);
 
-  // Redirect user
-  private redirectUser(reason: string) {
-    if (typeof (window as any).__showSecurityWarning === 'function') {
-      (window as any).__showSecurityWarning(`Access denied: ${reason}`);
-    } else {
-      alert(`Security violation detected: ${reason}\nRedirecting...`);
-      window.location.href = this.redirectUrl;
-    }
+    // Animate out and remove
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.remove();
+        }
+      }, 300);
+    }, 4000);
   }
 
   // Public methods for configuration
@@ -475,7 +282,7 @@ class AntiInspectProtection {
   }
 
   public setMaxWarnings(count: number) {
-    this.maxWarnings = count;
+    this.maxWarnings = Math.max(1, count);
   }
 
   public disable() {
@@ -487,8 +294,14 @@ class AntiInspectProtection {
   }
 }
 
-// Initialize protection
-const antiInspect = new AntiInspectProtection();
+// Initialize protection with error handling
+let antiInspect: AntiInspectProtection | null = null;
+
+try {
+  antiInspect = new AntiInspectProtection();
+} catch (error) {
+  console.warn('Anti-inspection protection failed to initialize:', error);
+}
 
 // Export for configuration
 export default antiInspect;
