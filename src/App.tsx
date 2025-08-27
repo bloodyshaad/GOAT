@@ -1,8 +1,3 @@
-// Protection systems - must be imported first
-import './styles/protection.css';
-import './utils/antiInspect';
-import './utils/codeProtection';
-
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Header } from './components/Header';
@@ -38,6 +33,17 @@ import { Product } from './data/products';
 import { initializeDefaultExperiments } from './services/abTesting';
 import { analytics } from './services/analytics';
 
+// Protection systems - imported with error handling
+import './styles/protection.css';
+
+// Initialize protection systems safely
+React.lazy(() => 
+  import('./utils/antiInspect').catch(() => ({ default: () => null }))
+);
+React.lazy(() => 
+  import('./utils/codeProtection').catch(() => ({ default: () => null }))
+);
+
 function AppContent() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
@@ -53,33 +59,37 @@ function AppContent() {
   const { isLoading, loadingText } = useLoading();
   const { showSuccess, showError } = useToast();
 
-  // Initialize analytics and experiments (reduced frequency)
+  // Initialize analytics and experiments
   React.useEffect(() => {
     let initialized = false;
     
     if (!initialized) {
-      // Initialize A/B testing experiments
-      initializeDefaultExperiments();
-      
-      // Set user ID for analytics if logged in
-      if (user) {
-        analytics.identify(user.id || user.email, {
-          email: user.email,
-          name: user.name,
-          signupDate: new Date().toISOString()
+      try {
+        // Initialize A/B testing experiments
+        initializeDefaultExperiments();
+        
+        // Set user ID for analytics if logged in
+        if (user) {
+          analytics.identify(user.id || user.email, {
+            email: user.email,
+            name: user.name,
+            signupDate: new Date().toISOString()
+          });
+        }
+        
+        // Track app initialization (only once)
+        analytics.track('app_initialized', {
+          category: 'app',
+          action: 'initialize',
+          timestamp: Date.now()
         });
+        
+        initialized = true;
+      } catch (error) {
+        console.warn('Analytics initialization failed:', error);
       }
-      
-      // Track app initialization (only once)
-      analytics.track('app_initialized', {
-        category: 'app',
-        action: 'initialize',
-        timestamp: Date.now()
-      });
-      
-      initialized = true;
     }
-  }, [user]); // Include user dependency to fix ESLint warning
+  }, [user]);
 
   // Wishlist functions with authentication check
   const addToWishlist = (product: Product) => {
@@ -217,7 +227,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300 protected-content no-context-menu">
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300 protected-content">
       <ScrollProgress />
       
       {/* Authentication Banner for non-authenticated users */}
@@ -368,12 +378,6 @@ function AppContent() {
       </div>
       
       {isLoading && <PageLoadingSpinner text={loadingText} />}
-      
-      {/* Hidden fake elements for obfuscation */}
-      <div style={{ display: 'none' }} className="fake-admin-panel">
-        <span className="fake-api-key">API_KEY_FAKE_12345</span>
-        <span className="fake-secret-data">SECRET_FAKE_67890</span>
-      </div>
     </div>
   );
 }
